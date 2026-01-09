@@ -2,8 +2,10 @@
 Database models for Quantum Advent Calendar
 """
 
-from app import db
 from datetime import datetime
+
+# db will be imported by app.py after initialization
+db = None
 
 class User(db.Model):
     __tablename__ = 'users'

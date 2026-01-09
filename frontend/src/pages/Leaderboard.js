@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/Leaderboard.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ function Leaderboard() {
 
   const fetchLeaderboard = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/leaderboard/');
+      const response = await axios.get(`${API_URL}/leaderboard/`);
       setLeaderboard(response.data);
       setLoading(false);
     } catch (error) {

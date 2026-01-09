@@ -2,8 +2,7 @@
 Seed database with challenges
 """
 
-from app import app, db
-from models import Challenge
+from app import app, db, Challenge
 
 CHALLENGES = [
     {

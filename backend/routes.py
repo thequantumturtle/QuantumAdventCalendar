@@ -3,11 +3,12 @@ API Routes for Quantum Advent Calendar
 """
 
 from flask import Blueprint, request, jsonify
-from app import db
-from models import User, Challenge, Submission
-from grader import CodeGrader
 from sqlalchemy import func
 import json
+
+# Import models and db from app
+from app import db, User, Challenge, Submission
+from grader import CodeGrader
 
 # Challenge routes
 challenge_bp = Blueprint('challenges', __name__, url_prefix='/api/challenges')

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/UserProgress.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function UserProgress({ user }) {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,7 @@ function UserProgress({ user }) {
   const fetchProgress = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/submissions/user/${user}/progress`
+        `${API_URL}/submissions/user/${user}/progress`
       );
       setProgress(response.data);
       setLoading(false);

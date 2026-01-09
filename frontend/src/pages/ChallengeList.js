@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../styles/ChallengeList.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function ChallengeList() {
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +15,7 @@ function ChallengeList() {
 
   const fetchChallenges = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/challenges/');
+      const response = await axios.get(`${API_URL}/challenges/`);
       setChallenges(response.data);
       setLoading(false);
     } catch (error) {

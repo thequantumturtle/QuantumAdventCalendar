@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../styles/ChallengeEditor.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 function ChallengeEditor({ user }) {
   const { day } = useParams();
   const [challenge, setChallenge] = useState(null);
@@ -20,7 +22,7 @@ function ChallengeEditor({ user }) {
 
   const fetchChallenge = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/challenges/${day}`);
+      const response = await axios.get(`${API_URL}/challenges/${day}`);
       setChallenge(response.data);
       setCode(response.data.starter_code);
     } catch (error) {
@@ -36,7 +38,7 @@ function ChallengeEditor({ user }) {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/submissions/', {
+      const response = await axios.post(`${API_URL}/submissions/`, {
         username: user,
         day: parseInt(day),
         code: code
