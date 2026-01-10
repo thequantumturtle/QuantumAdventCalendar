@@ -3,6 +3,7 @@ API Routes for Quantum Advent Calendar
 """
 
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 import json
 
@@ -31,24 +32,28 @@ def get_challenge(day):
 submission_bp = Blueprint('submissions', __name__, url_prefix='/api/submissions')
 
 @submission_bp.route('/', methods=['POST'])
+@jwt_required()
 def submit_solution():
     """Submit and grade a solution"""
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
     data = request.get_json()
     
     # Validate input
-    if not data or 'username' not in data or 'day' not in data or 'code' not in data:
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not data or 'day' not in data or 'code' not in data:
+        return jsonify({'error': 'Missing required fields (day, code)'}), 400
     
-    username = data['username']
     day = data['day']
     code = data['code']
     
-    # Get or create user
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        user = User(username=username, email=f"{username}@quantum.local")
-        db.session.add(user)
-        db.session.commit()
+    # Validate submission size (max 10MB)
+    max_size_mb = 10
+    if len(code.encode('utf-8')) / (1024 * 1024) > max_size_mb:
+        return jsonify({'error': f'Code exceeds {max_size_mb}MB limit'}), 413
     
     # Get challenge
     challenge = Challenge.query.filter_by(day=day).first()
@@ -74,7 +79,7 @@ def submit_solution():
         'passed': passed,
         'results': results,
         'day': day,
-        'username': username
+        'username': user.username
     }), 200
 
 @submission_bp.route('/user/<username>', methods=['GET'])
@@ -88,8 +93,16 @@ def get_user_submissions(username):
     return jsonify([s.to_dict() for s in submissions]), 200
 
 @submission_bp.route('/user/<username>/progress', methods=['GET'])
+@jwt_required()
 def get_user_progress(username):
     """Get user's progress across all days"""
+    current_user_id = get_jwt_identity()
+    current_user = User.query.get(current_user_id)
+    
+    # Users can only view their own progress, or admins can view others
+    if current_user.id != current_user_id and username != current_user.username:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404

@@ -6,8 +6,10 @@ Main Flask application for challenge serving and solution grading
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -21,7 +23,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# JWT configuration
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # 15 minute access token
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=7)    # 7 day refresh token
+
 db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
 # Define models inline to avoid circular imports
 class User(db.Model):
@@ -30,9 +38,20 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.now())
     
     submissions = db.relationship('Submission', backref='user', lazy=True)
+    
+    def set_password(self, password):
+        """Hash and set password"""
+        import bcrypt
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    def check_password(self, password):
+        """Verify password against hash"""
+        import bcrypt
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
     
     def to_dict(self):
         return {
@@ -90,8 +109,10 @@ class Submission(db.Model):
 
 # Import routes (models defined inline to avoid circular imports)
 from routes import challenge_bp, submission_bp, leaderboard_bp
+from auth import auth_bp
 
 # Register blueprints
+app.register_blueprint(auth_bp)
 app.register_blueprint(challenge_bp)
 app.register_blueprint(submission_bp)
 app.register_blueprint(leaderboard_bp)
