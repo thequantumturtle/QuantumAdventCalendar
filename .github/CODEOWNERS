@@ -1,0 +1,25 @@
+# CODEOWNERS file for Quantum Advent Calendar
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Backend code
+/backend/                          @thequantumturtle
+
+# Frontend code
+/frontend/                         @thequantumturtle
+
+# Challenge content
+/days/                             @thequantumturtle
+
+# CI/CD workflows
+/.github/workflows/                @thequantumturtle
+
+# Documentation
+*.md                               @thequantumturtle
+
+# Configuration
+docker-compose.yml                 @thequantumturtle
+Dockerfile                         @thequantumturtle
+.env.example                       @thequantumturtle
+
+# Catch-all
+*                                  @thequantumturtle
