@@ -4,6 +4,7 @@ Flask-SQLAlchemy==3.0.5
 Flask-JWT-Extended==4.5.2
 python-dotenv==1.0.0
 bcrypt==4.1.1
+requests==2.31.0
 qiskit>=0.43.0
 qiskit-aer>=0.13.0
 numpy>=1.23.0

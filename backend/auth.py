@@ -105,9 +105,9 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({'error': 'Invalid username or password'}), 401
     
-    # Create tokens
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    # Create tokens (identity must be a string for Flask-JWT-Extended)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
     
     return jsonify({
         'message': 'Login successful',
@@ -122,14 +122,14 @@ def refresh():
     """Get new access token using refresh token"""
     from app import User
     
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert string identity back to int
     user = User.query.get(user_id)
     
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
-    # Create new access token
-    access_token = create_access_token(identity=user.id)
+    # Create new access token (identity must be a string)
+    access_token = create_access_token(identity=str(user.id))
     
     return jsonify({
         'access_token': access_token
@@ -141,7 +141,7 @@ def get_current_user():
     """Get current authenticated user info"""
     from app import User
     
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert string identity back to int
     user = User.query.get(user_id)
     
     if not user:

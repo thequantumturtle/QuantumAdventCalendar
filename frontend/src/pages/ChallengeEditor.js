@@ -8,7 +8,7 @@ import '../styles/ChallengeEditor.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-function ChallengeEditor({ user }) {
+function ChallengeEditor({ user, token }) {
   const { day } = useParams();
   const [challenge, setChallenge] = useState(null);
   const [code, setCode] = useState('');
@@ -32,25 +32,32 @@ function ChallengeEditor({ user }) {
   }, [day]);
 
   const handleSubmit = async () => {
-    if (!user) {
-      alert('Please set your username first');
+    if (!user || !token) {
+      alert('Please log in first');
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/submissions/`, {
-        username: user,
-        day: parseInt(day),
-        code: code
-      });
+      const response = await axios.post(
+        `${API_URL}/submissions/`,
+        {
+          day: parseInt(day),
+          code: code
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
       setResults(response.data);
       setSubmitted(true);
     } catch (error) {
       console.error('Error submitting:', error);
       setResults({
         passed: false,
-        results: { error: 'Submission failed' }
+        results: { error: error.response?.data?.error || 'Submission failed' }
       });
     } finally {
       setLoading(false);

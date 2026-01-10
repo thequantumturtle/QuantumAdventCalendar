@@ -35,7 +35,7 @@ submission_bp = Blueprint('submissions', __name__, url_prefix='/api/submissions'
 @jwt_required()
 def submit_solution():
     """Submit and grade a solution"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())  # Convert string identity back to int
     user = User.query.get(user_id)
     
     if not user:
@@ -96,7 +96,7 @@ def get_user_submissions(username):
 @jwt_required()
 def get_user_progress(username):
     """Get user's progress across all days"""
-    current_user_id = get_jwt_identity()
+    current_user_id = int(get_jwt_identity())  # Convert string identity back to int
     current_user = User.query.get(current_user_id)
     
     # Users can only view their own progress, or admins can view others

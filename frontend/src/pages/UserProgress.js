@@ -4,19 +4,24 @@ import '../styles/UserProgress.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-function UserProgress({ user }) {
+function UserProgress({ user, token }) {
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) fetchProgress();
+    if (user && token) fetchProgress();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, token]);
 
   const fetchProgress = async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/submissions/user/${user}/progress`
+        `${API_URL}/submissions/user/${user.username}/progress`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
       setProgress(response.data);
       setLoading(false);
@@ -26,7 +31,7 @@ function UserProgress({ user }) {
     }
   };
 
-  if (!user) return <div>Please set your username to view progress</div>;
+  if (!user) return <div>Please log in to view progress</div>;
   if (loading) return <div>Loading...</div>;
   if (!progress) return <div>No progress yet</div>;
 
