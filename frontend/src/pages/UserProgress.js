@@ -10,6 +10,7 @@ function UserProgress({ user }) {
 
   useEffect(() => {
     if (user) fetchProgress();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchProgress = async () => {

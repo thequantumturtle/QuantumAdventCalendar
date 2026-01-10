@@ -16,10 +16,6 @@ function ChallengeEditor({ user }) {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    fetchChallenge();
-  }, [day]);
-
   const fetchChallenge = async () => {
     try {
       const response = await axios.get(`${API_URL}/challenges/${day}`);
@@ -29,6 +25,11 @@ function ChallengeEditor({ user }) {
       console.error('Error fetching challenge:', error);
     }
   };
+
+  useEffect(() => {
+    fetchChallenge();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day]);
 
   const handleSubmit = async () => {
     if (!user) {
