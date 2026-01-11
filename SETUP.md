@@ -86,6 +86,18 @@ The repository enforces a Docker-first pre-push check that runs quick smoke test
 
 Note: if the repository does not contain a `frontend/package-lock.json`, the pre-push hook will fall back to running `npm install` instead of `npm ci`.
 
+Recommended default timeout
+
+We recommend a default frontend build timeout of 300 seconds (5 minutes) for the pre-push hook. To set this locally:
+
+```powershell
+$env:FRONTEND_BUILD_TIMEOUT_SECONDS = '300'
+# or on POSIX shells:
+export FRONTEND_BUILD_TIMEOUT_SECONDS=300
+```
+
+This prevents long-running or hung builds from blocking pushes; adjust as needed for slow networks or large dependency installs.
+
 Example (PowerShell) to skip the build for one push:
 
 ```powershell

@@ -3,6 +3,7 @@
 A daily quantum computing advent calendar featuring puzzles, challenges, and educational content for December 1-25.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/thequantumturtle/QuantumAdventCalendar/ci.yml?branch=main)](https://github.com/thequantumturtle/QuantumAdventCalendar/actions)
+[![Prepush Check](https://img.shields.io/github/actions/workflow/status/thequantumturtle/QuantumAdventCalendar/prepush-check.yml?branch=main)](https://github.com/thequantumturtle/QuantumAdventCalendar/actions)
 
 
 ## Overview
