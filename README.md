@@ -2,6 +2,9 @@
 
 A daily quantum computing advent calendar featuring puzzles, challenges, and educational content for December 1-25.
 
+[![CI](https://img.shields.io/github/actions/workflow/status/thequantumturtle/QuantumAdventCalendar/ci.yml?branch=main)](https://github.com/thequantumturtle/QuantumAdventCalendar/actions)
+
+
 ## Overview
 
 This project presents 25 days of quantum computing content, from foundational concepts to advanced algorithms and applications. Each day includes:
