@@ -204,6 +204,22 @@ By contributing, you agree your contributions will be licensed under the MIT Lic
 
 Thank you for contributing to Quantum Advent Calendar! 🎉
 
+## Local CI Shortcut
+
+For quick, Docker-first verification that mirrors CI, we provide a `Makefile` shortcut:
+
+```bash
+# From the repo root
+make ci-local
+```
+
+`make ci-local` will:
+- start the services via `docker-compose up -d --build`
+- run backend tests inside the backend container (`pytest`)
+- build the frontend inside the frontend container (`npm run build`)
+
+Use this as a fast pre-push check to ensure lint/tests/builds succeed in a CI-like environment.
+
 ## Local Docker tests & pre-push hook
 
 We run local smoke tests inside Docker to ensure the development environment matches CI and other contributors.
