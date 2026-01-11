@@ -126,7 +126,7 @@ if __name__ == '__main__':
     unittest.main()
 ''',
         'difficulty': 2
-    }
+    },
     {
         'day': 2,
         'title': 'Superposition',
