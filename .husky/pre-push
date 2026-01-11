@@ -22,7 +22,41 @@ if command -v sh >/dev/null 2>&1 && [ -x ./scripts/test-local.sh ]; then
   sh ./scripts/test-local.sh
   exit_code=$?
   if [ $exit_code -eq 0 ]; then
-    echo "POSIX smoke tests passed. Proceeding with push."
+    echo "POSIX smoke tests passed. Running frontend full-build check..."
+    if [ "$SKIP_FRONTEND_BUILD" = "1" ]; then
+      echo "SKIP_FRONTEND_BUILD=1 set — skipping frontend build check."
+      echo "Proceeding with push."
+      exit 0
+    fi
+
+    # Run frontend build inside the frontend container (non-interactive)
+    if [ "$CI_FRONTEND_INSTALL" = "1" ]; then
+      echo "CI_FRONTEND_INSTALL=1 set — running install+build inside frontend container."
+      if [ -f frontend/package-lock.json ]; then
+        echo "Found frontend/package-lock.json — running 'npm ci'"
+        CMD="docker-compose exec -T frontend sh -c \"npm ci --silent && npm run build --silent\""
+      else
+        echo "No frontend/package-lock.json found — falling back to 'npm install'"
+        CMD="docker-compose exec -T frontend sh -c \"npm install --silent && npm run build --silent\""
+      fi
+    else
+      CMD="docker-compose exec -T frontend sh -c \"npm run build --silent\""
+    fi
+
+    # If a timeout is configured and the 'timeout' utility exists, use it to guard the build.
+    if [ -n "$FRONTEND_BUILD_TIMEOUT_SECONDS" ] && command -v timeout >/dev/null 2>&1; then
+      echo "Using timeout ${FRONTEND_BUILD_TIMEOUT_SECONDS}s for frontend build"
+      timeout -s KILL $FRONTEND_BUILD_TIMEOUT_SECONDS sh -c "$CMD"
+    else
+      sh -c "$CMD"
+    fi
+    build_exit=$?
+    if [ $build_exit -ne 0 ]; then
+      echo "Frontend build failed (exit $build_exit). Aborting push."
+      exit $build_exit
+    fi
+
+    echo "Frontend build succeeded. Proceeding with push."
     exit 0
   else
     echo "POSIX smoke tests failed (exit $exit_code)."
@@ -36,7 +70,38 @@ if command -v pwsh >/dev/null 2>&1 && [ -f ./scripts/test-local.ps1 ]; then
   pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/test-local.ps1
   exit_code=$?
   if [ $exit_code -eq 0 ]; then
-    echo "PowerShell smoke tests passed. Proceeding with push."
+    echo "PowerShell smoke tests passed. Running frontend full-build check..."
+    if [ "$SKIP_FRONTEND_BUILD" = "1" ]; then
+      echo "SKIP_FRONTEND_BUILD=1 set — skipping frontend build check."
+      echo "Proceeding with push."
+      exit 0
+    fi
+
+    if [ "$CI_FRONTEND_INSTALL" = "1" ]; then
+      echo "CI_FRONTEND_INSTALL=1 set — running install+build inside frontend container."
+      pwsh_cmd=''
+      if pwsh -NoProfile -Command "Test-Path frontend/package-lock.json" >/dev/null 2>&1; then
+        pwsh_cmd="docker-compose exec -T frontend sh -c 'npm ci --silent && npm run build --silent'"
+      else
+        pwsh_cmd="docker-compose exec -T frontend sh -c 'npm install --silent && npm run build --silent'"
+      fi
+    else
+      pwsh_cmd="docker-compose exec -T frontend sh -c 'npm run build --silent'"
+    fi
+
+    # PowerShell: if FRONTEND_BUILD_TIMEOUT_SECONDS is set, run the build as a background job and wait with timeout
+    if [ -n "$FRONTEND_BUILD_TIMEOUT_SECONDS" ]; then
+      pwsh -NoProfile -ExecutionPolicy Bypass -Command "`$t = [int]::Parse('$FRONTEND_BUILD_TIMEOUT_SECONDS'); `$job = Start-Job -ScriptBlock { ${pwsh_cmd} }; if (Wait-Job -Job `$job -Timeout `$t) { Receive-Job `$job } else { Stop-Job `$job; Write-Error 'Frontend build timed out.'; exit 124 }"
+    else
+      pwsh -NoProfile -ExecutionPolicy Bypass -Command "$pwsh_cmd"
+    fi
+    build_exit=$?
+    if [ $build_exit -ne 0 ]; then
+      echo "Frontend build failed (exit $build_exit). Aborting push."
+      exit $build_exit
+    fi
+
+    echo "Frontend build succeeded. Proceeding with push."
     exit 0
   else
     echo "PowerShell smoke tests failed (exit $exit_code). Aborting push."

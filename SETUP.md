@@ -77,6 +77,29 @@ npm start
 
 App will open on `http://localhost:3000`
 
+### Notes on local CI parity and pre-push checks
+
+The repository enforces a Docker-first pre-push check that runs quick smoke tests and then a frontend production build to mirror CI. You can control the behavior with these environment variables:
+
+- `SKIP_FRONTEND_BUILD=1` — skip the frontend build check for a single push (useful for very fast pushes).
+- `CI_FRONTEND_INSTALL=1` — run `npm ci` inside the frontend container before `npm run build` (useful when you want CI-accurate install behavior locally).
+
+Note: if the repository does not contain a `frontend/package-lock.json`, the pre-push hook will fall back to running `npm install` instead of `npm ci`.
+
+Example (PowerShell) to skip the build for one push:
+
+```powershell
+$env:SKIP_FRONTEND_BUILD = "1"
+git push
+```
+
+Example to run CI-accurate install before build in the pre-push hook:
+
+```powershell
+$env:CI_FRONTEND_INSTALL = "1"
+git push
+```
+
 ## Testing the Application
 
 ### Submit a Challenge
