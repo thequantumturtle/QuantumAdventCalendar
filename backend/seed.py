@@ -67,6 +67,67 @@ if __name__ == '__main__':
         'difficulty': 1
     },
     {
+        'day': 3,
+        'title': 'Entanglement',
+        'description': '''
+        Create a maximally entangled Bell pair and observe correlated measurement outcomes.
+
+        **Your task:**
+        1. Prepare the Bell state |Φ+> using H and CNOT
+        2. Measure both qubits and run on AerSimulator with 1000 shots
+        3. Verify `00` and `11` dominate
+        ''',
+        'starter_code': '''from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit_aer import AerSimulator
+
+def create_bell_pair():
+    q = QuantumRegister(2, 'q')
+    c = ClassicalRegister(2, 'c')
+    circuit = QuantumCircuit(q, c)
+
+    # Prepare Bell state
+    circuit.h(q[0])
+    circuit.cx(q[0], q[1])
+
+    circuit.measure(q[0], c[0])
+    circuit.measure(q[1], c[1])
+
+    return circuit
+
+def run_circuit(shots=1000):
+    qc = create_bell_pair()
+    simulator = AerSimulator()
+    result = simulator.run(qc, shots=shots).result()
+    return result.get_counts(qc)
+
+if __name__ == "__main__":
+    print(run_circuit())
+''',
+        'test_code': '''import unittest
+
+from solution import create_bell_pair, run_circuit
+
+class TestDay3Entanglement(unittest.TestCase):
+    def test_circuit_creation(self):
+        qc = create_bell_pair()
+        self.assertIsNotNone(qc)
+        self.assertEqual(qc.num_qubits, 2)
+
+    def test_entanglement_distribution(self):
+        counts = run_circuit(shots=1000)
+        self.assertIn('00', counts)
+        self.assertIn('11', counts)
+        total = sum(counts.values())
+        prob_00 = counts.get('00',0)/total
+        prob_11 = counts.get('11',0)/total
+        self.assertGreater(prob_00 + prob_11, 0.8)
+
+if __name__ == '__main__':
+    unittest.main()
+''',
+        'difficulty': 2
+    }
+    {
         'day': 2,
         'title': 'Superposition',
         'description': '''
