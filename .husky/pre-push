@@ -1,10 +1,37 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Run a fast smoke test before pushing; keep short to avoid slowing dev cycle
-# This will run the repo root test script which starts containers and checks /health
-if [ -x "./scripts/test-local.sh" ]; then
-  ./scripts/test-local.sh
-else
-  echo "Warning: ./scripts/test-local.sh not executable or missing; skipping smoke tests"
+# Cross-platform pre-push hook that runs a quick Docker-based smoke test.
+# - Prefer the POSIX script (calls docker-compose)
+# - Fall back to PowerShell script if pwsh is available
+# - If neither docker nor pwsh is available, skip with a clear warning
+
+echo "Running pre-push smoke tests (Docker-based)..."
+
+if command -v docker >/dev/null 2>&1; then
+  echo "Found docker in PATH. Running POSIX smoke test..."
+  # Use sh to run the script so it doesn't need +x on Windows
+  sh ./scripts/test-local.sh
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "Smoke tests failed (exit $exit_code). Aborting push."
+    exit $exit_code
+  fi
+  echo "Smoke tests passed. Proceeding with push."
+  exit 0
 fi
+
+if command -v pwsh >/dev/null 2>&1; then
+  echo "Docker not found in sh PATH, but pwsh is available. Running PowerShell smoke test..."
+  pwsh -File ./scripts/test-local.ps1
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "PowerShell smoke tests failed (exit $exit_code). Aborting push."
+    exit $exit_code
+  fi
+  echo "Smoke tests passed (pwsh). Proceeding with push."
+  exit 0
+fi
+
+echo "Warning: Docker not found and pwsh not available; skipping smoke tests. To enable checks install Docker or pwsh."
+exit 0
