@@ -1,0 +1,10 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run a fast smoke test before pushing; keep short to avoid slowing dev cycle
+# This will run the repo root test script which starts containers and checks /health
+if [ -x "./scripts/test-local.sh" ]; then
+  ./scripts/test-local.sh
+else
+  echo "Warning: ./scripts/test-local.sh not executable or missing; skipping smoke tests"
+fi
