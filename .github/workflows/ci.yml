@@ -46,7 +46,7 @@ jobs:
         name: coverage-report
         path: htmlcov/
 
-  frontend-build:
+  frontend-lint-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,8 +60,40 @@ jobs:
     - name: Install dependencies
       run: cd frontend && npm install
 
+    - name: Lint frontend code
+      run: cd frontend && npm run lint -- --max-warnings 0
+      continue-on-error: false
+
     - name: Build React app
       run: cd frontend && npm run build
       env:
         CI: true
         REACT_APP_API_URL: http://localhost:5000
+
+  backend-lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install linting tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint
+
+    - name: Lint with flake8 (critical errors only)
+      run: |
+        flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Lint with flake8 (all warnings)
+      run: |
+        flake8 backend/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
