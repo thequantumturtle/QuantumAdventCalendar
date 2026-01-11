@@ -153,6 +153,8 @@ npm run build
 
 You can also run the repository's quick smoke tests which exercise the above via `./scripts/test-local.sh` (POSIX) or `./scripts/test-local.ps1` (Windows).
 
+Note on local CI parity: the repository's pre-push hook now runs a full frontend production build after smoke tests to catch build-time regressions before they reach CI. If you prefer to run the CI-accurate install step locally as well, set the environment variable `CI_FRONTEND_INSTALL=1` and the hook will run `npm ci` before `npm run build` inside the frontend container. To skip the frontend build entirely for a single push, set `SKIP_FRONTEND_BUILD=1`.
+
 
 ## Development & Contributor Guide
 

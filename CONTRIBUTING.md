@@ -265,7 +265,17 @@ npx husky install
 ```
 
 Notes
-- The pre-push hook is intentionally light-weight (fast smoke checks). Full test suites and builds are executed in CI.
+- The pre-push hook previously ran quick smoke checks. The repository now runs an additional frontend production build as part of the hook to catch client-side build regressions early. Full test suites are still executed in CI.
 - If you need to bypass the hook for a specific push, use `git push --no-verify` (use with caution).
+
+### Frontend build check in pre-push
+
+The pre-push hook runs a frontend production build after the smoke tests to surface build-time problems before changes reach the shared branch.
+
+- **What it runs:** After the POSIX/PowerShell smoke tests succeed, the hook runs `docker-compose exec -T frontend sh -c "npm run build"`.
+- **Why:** This reproduces the CI build step locally so build-time issues are discovered earlier and do not block CI or the main branch.
+- **Opt-out:** To skip the slower frontend build for a single push, set the environment variable `SKIP_FRONTEND_BUILD=1` when pushing (for example on PowerShell: `$env:SKIP_FRONTEND_BUILD=1; git push`).
+- **CI-accurate install (optional):** To make the pre-push hook perform a CI-accurate install step before the build, set `CI_FRONTEND_INSTALL=1`. When set, the hook will run `npm ci` if a `frontend/package-lock.json` exists, otherwise it falls back to `npm install`.
+   - Example (PowerShell): `$env:CI_FRONTEND_INSTALL=1; git push`
 
 If you'd like me to make the pre-push hook stricter (fail when Docker is missing) or optional via a config flag, say so and I will update it.
