@@ -208,10 +208,10 @@ Thank you for contributing to Quantum Advent Calendar! 🎉
 
 We run local smoke tests inside Docker to ensure the development environment matches CI and other contributors.
 
-- A Husky pre-push hook is provided which runs a quick Docker-based smoke test before pushing. The hook is cross-platform:
-   - It prefers the POSIX script `./scripts/test-local.sh` (recommended for macOS/Linux and WSL)
-   - If `pwsh` (PowerShell Core) is available it will fall back to `./scripts/test-local.ps1`
-   - If neither is available the hook will skip with a clear warning (it will not block the push)
+- A Husky pre-push hook is provided which runs a quick Docker-based smoke test before pushing. The hook is strict:
+   - **Docker is required** locally. If `docker` is not present in your PATH the hook will block the push and explain how to install Docker.
+   - It runs the POSIX script `./scripts/test-local.sh` by default (macOS/Linux/WSL). On Windows the hook will attempt to run PowerShell if available, but Docker is still required.
+   - If neither Docker nor PowerShell is available the hook will block the push (strict) and instruct how to install Docker.
 
 - The smoke test performs a minimal check designed to be fast:
    1. Starts containers with `docker-compose up -d --build` (if they are not already running)
