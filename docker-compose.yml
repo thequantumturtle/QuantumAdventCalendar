@@ -9,6 +9,7 @@ services:
       - DATABASE_URL=sqlite:///quantum_advent.db
     volumes:
       - ./backend:/app
+      - ./days:/app/days
     # Run the seed script on container start to ensure challenges are populated,
     # then start the Flask development server.
     command: sh -c "python seed.py && flask run --host=0.0.0.0"
