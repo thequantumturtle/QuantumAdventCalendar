@@ -203,3 +203,49 @@ docker-compose build     # Rebuild images
 By contributing, you agree your contributions will be licensed under the MIT License.
 
 Thank you for contributing to Quantum Advent Calendar! 🎉
+
+## Local Docker tests & pre-push hook
+
+We run local smoke tests inside Docker to ensure the development environment matches CI and other contributors.
+
+- A Husky pre-push hook is provided which runs a quick Docker-based smoke test before pushing. The hook is cross-platform:
+   - It prefers the POSIX script `./scripts/test-local.sh` (recommended for macOS/Linux and WSL)
+   - If `pwsh` (PowerShell Core) is available it will fall back to `./scripts/test-local.ps1`
+   - If neither is available the hook will skip with a clear warning (it will not block the push)
+
+- The smoke test performs a minimal check designed to be fast:
+   1. Starts containers with `docker-compose up -d --build` (if they are not already running)
+   2. Runs a small backend health check (`GET /health` via Flask test client)
+
+Running smoke tests locally (recommended)
+
+PowerShell (Windows):
+```powershell
+cd c:\Users\djust\Projects\QuantumAdventCalendar
+.\scripts\test-local.ps1
+```
+
+POSIX (macOS / Linux / WSL):
+```bash
+cd /path/to/QuantumAdventCalendar
+./scripts/test-local.sh
+# or use the Makefile shortcut
+make test-local
+```
+
+One-time local setup for Husky hooks
+
+On a new machine, enable Husky hooks in the repository (frontend dev dependencies are required for some hooks):
+
+```bash
+# from repo root
+cd frontend
+npm install
+npx husky install
+```
+
+Notes
+- The pre-push hook is intentionally light-weight (fast smoke checks). Full test suites and builds are executed in CI.
+- If you need to bypass the hook for a specific push, use `git push --no-verify` (use with caution).
+
+If you'd like me to make the pre-push hook stricter (fail when Docker is missing) or optional via a config flag, say so and I will update it.
