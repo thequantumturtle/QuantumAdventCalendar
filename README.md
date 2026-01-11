@@ -121,6 +121,39 @@ Contributions are welcome! Please:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## CI
+
+We run a GitHub Actions workflow on `main` that performs quick checks to keep the project healthy:
+
+- **Lint**: runs linters for Python and JavaScript (ESLint, format checks)
+- **Backend tests**: runs the Python test suite (pytest)
+- **Frontend build**: builds the frontend (`npm run build`) to ensure the production bundle compiles
+
+How to run CI checks locally
+
+Recommended (Docker-first, matches CI):
+```powershell
+cd 'c:\Users\djust\Projects\QuantumAdventCalendar'
+docker-compose up -d --build
+docker-compose exec backend pytest -q
+docker-compose exec frontend npm run build
+```
+
+Host (run without Docker):
+```bash
+# Backend
+cd backend
+pytest -q
+
+# Frontend (requires Node.js)
+cd ../frontend
+npm install
+npm run build
+```
+
+You can also run the repository's quick smoke tests which exercise the above via `./scripts/test-local.sh` (POSIX) or `./scripts/test-local.ps1` (Windows).
+
+
 ## Development & Contributor Guide
 
 Please see `CONTRIBUTING.md` for full contributor guidelines, local Docker-based testing instructions, and pre-push hook behavior. We require Docker for local development to ensure parity with CI.
