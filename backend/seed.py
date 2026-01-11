@@ -84,36 +84,55 @@ if __name__ == '__main__':
 from qiskit_aer import AerSimulator
 
 def create_superposition_circuit():
-    """Create a 2-qubit superposition circuit"""
-    # TODO: Implement this function
-    pass
+    """Create a 2-qubit superposition circuit."""
+    q = QuantumRegister(2, 'q')
+    c = ClassicalRegister(2, 'c')
+    circuit = QuantumCircuit(q, c)
 
-def run_circuit():
-    """Execute the circuit and return measurement counts"""
-    # TODO: Implement this function
-    pass
+    # Apply Hadamard to both qubits
+    circuit.h(q[0])
+    circuit.h(q[1])
+
+    # Measure both qubits
+    circuit.measure(q[0], c[0])
+    circuit.measure(q[1], c[1])
+
+    return circuit
+
+def run_circuit(shots=1000):
+    """Execute the circuit and return counts dictionary."""
+    qc = create_superposition_circuit()
+    simulator = AerSimulator()
+    result = simulator.run(qc, shots=shots).result()
+    counts = result.get_counts(qc)
+    return counts
 
 if __name__ == "__main__":
-    qc = create_superposition_circuit()
     counts = run_circuit()
     print(counts)
 ''',
-        'test_code': '''
-import unittest
+        'test_code': '''import unittest
 
-class TestDay2(unittest.TestCase):
-    def test_four_states(self):
-        counts = run_circuit()
-        
-        # All 4 states should appear
-        for state in ['00', '01', '10', '11']:
-            self.assertIn(state, counts)
-        
+from solution import create_superposition_circuit, run_circuit
+
+class TestDay2Superposition(unittest.TestCase):
+    def test_circuit_creation(self):
+        qc = create_superposition_circuit()
+        self.assertIsNotNone(qc)
+        # Expect 2 qubits and 2 classical bits
+        self.assertEqual(qc.num_qubits, 2)
+        self.assertEqual(len(qc.clbits), 2)
+
+    def test_distribution(self):
+        counts = run_circuit(shots=1000)
+        # Ensure all four states are present
+        for s in ['00', '01', '10', '11']:
+            self.assertIn(s, counts)
+
         total = sum(counts.values())
-        
-        # Each should be roughly 25%
-        for state in ['00', '01', '10', '11']:
-            prob = counts[state] / total
+        # Check approximate 25% per state with 10% absolute tolerance
+        for s in ['00', '01', '10', '11']:
+            prob = counts[s] / total
             self.assertGreater(prob, 0.15)
             self.assertLess(prob, 0.35)
 
