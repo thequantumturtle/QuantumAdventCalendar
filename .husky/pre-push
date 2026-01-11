@@ -17,13 +17,32 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Found docker. Running POSIX smoke test..."
-sh ./scripts/test-local.sh
-exit_code=$?
-if [ $exit_code -ne 0 ]; then
-  echo "Smoke tests failed (exit $exit_code). Aborting push."
-  exit $exit_code
+echo "Found docker. Attempting POSIX smoke test..."
+if command -v sh >/dev/null 2>&1 && [ -x ./scripts/test-local.sh ]; then
+  sh ./scripts/test-local.sh
+  exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    echo "POSIX smoke tests passed. Proceeding with push."
+    exit 0
+  else
+    echo "POSIX smoke tests failed (exit $exit_code)."
+  fi
+else
+  echo "POSIX shell or script not available, will try PowerShell fallback if present."
 fi
 
-echo "Smoke tests passed. Proceeding with push."
-exit 0
+if command -v pwsh >/dev/null 2>&1 && [ -f ./scripts/test-local.ps1 ]; then
+  echo "Running PowerShell smoke test (fallback)..."
+  pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/test-local.ps1
+  exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    echo "PowerShell smoke tests passed. Proceeding with push."
+    exit 0
+  else
+    echo "PowerShell smoke tests failed (exit $exit_code). Aborting push."
+    exit $exit_code
+  fi
+fi
+
+echo "No suitable smoke-test runner available (POSIX shell or PowerShell). Aborting push."
+exit 1

@@ -118,6 +118,10 @@ Contributions are welcome! Please:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Development & Contributor Guide
+
+Please see `CONTRIBUTING.md` for full contributor guidelines, local Docker-based testing instructions, and pre-push hook behavior. We require Docker for local development to ensure parity with CI.
+
 ## Resources
 
 - [Qiskit Documentation](https://qiskit.org/documentation/)

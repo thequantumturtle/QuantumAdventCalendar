@@ -1,25 +1,31 @@
 #!/usr/bin/env bash
-# Quick local smoke tests using Docker (POSIX)
+# Quick POSIX smoke tests using Docker (host HTTP checks)
 # - Ensures containers are up
-# - Runs a backend /health check via Flask test client
+# - Checks /health and /api/challenges on the host HTTP endpoint
+
 set -euo pipefail
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT_DIR"
+root="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$root"
 
 echo "Starting containers (build if needed)..."
 docker-compose up -d --build
 
-echo "Waiting 2s for services to start..."
-sleep 2
+sleep 3
 
-echo "Running backend health check inside container..."
-docker-compose exec backend python - <<'PY'
-from app import app
-with app.test_client() as c:
-    r = c.get('/health')
-    print('health status:', r.json)
-    if r.status_code != 200:
-        raise SystemExit('Health check failed')
-PY
+HEALTH_URL="http://127.0.0.1:5000/health"
+CH_URL="http://127.0.0.1:5000/api/challenges/"
+
+echo "Checking $HEALTH_URL"
+resp=$(curl -sS -f "$HEALTH_URL") || { echo "Health check failed" >&2; exit 1; }
+echo "Health response: $resp"
+
+echo "Checking $CH_URL"
+resp=$(curl -sS -f "$CH_URL") || { echo "Challenges endpoint failed" >&2; exit 1; }
+count=$(printf '%s' "$resp" | python -c 'import sys,json; print(len(json.load(sys.stdin)))')
+if [ "$count" -lt 1 ]; then
+    echo "No challenges seeded" >&2
+    exit 1
+fi
+echo "Challenges count: $count"
 
 echo "Smoke tests passed."

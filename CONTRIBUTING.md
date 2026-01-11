@@ -208,22 +208,26 @@ Thank you for contributing to Quantum Advent Calendar! 🎉
 
 We run local smoke tests inside Docker to ensure the development environment matches CI and other contributors.
 
-- A Husky pre-push hook is provided which runs a quick Docker-based smoke test before pushing. The hook is strict:
    - **Docker is required** locally. If `docker` is not present in your PATH the hook will block the push and explain how to install Docker.
    - It runs the POSIX script `./scripts/test-local.sh` by default (macOS/Linux/WSL). On Windows the hook will attempt to run PowerShell if available, but Docker is still required.
    - If neither Docker nor PowerShell is available the hook will block the push (strict) and instruct how to install Docker.
 
-- The smoke test performs a minimal check designed to be fast:
    1. Starts containers with `docker-compose up -d --build` (if they are not already running)
    2. Runs a small backend health check (`GET /health` via Flask test client)
 
 Running smoke tests locally (recommended)
 
-PowerShell (Windows):
 ```powershell
 cd c:\Users\djust\Projects\QuantumAdventCalendar
 .\scripts\test-local.ps1
 ```
+-- PowerShell (Windows):
+```powershell
+cd c:\Users\djust\Projects\QuantumAdventCalendar
+.\scripts\test-local.ps1
+```
+
+Note: The repository now includes a single canonical Windows smoke-test script at `./scripts/test-local.ps1`. The Husky pre-push hook will attempt the POSIX `./scripts/test-local.sh` first and fall back to PowerShell when necessary.
 
 POSIX (macOS / Linux / WSL):
 ```bash
