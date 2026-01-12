@@ -278,4 +278,14 @@ The pre-push hook runs a frontend production build after the smoke tests to surf
 - **CI-accurate install (optional):** To make the pre-push hook perform a CI-accurate install step before the build, set `CI_FRONTEND_INSTALL=1`. When set, the hook will run `npm ci` if a `frontend/package-lock.json` exists, otherwise it falls back to `npm install`.
    - Example (PowerShell): `$env:CI_FRONTEND_INSTALL=1; git push`
 
+Recommended default timeout
+
+We recommend contributors set `FRONTEND_BUILD_TIMEOUT_SECONDS=300` (5 minutes) when using the pre-push hook so that long/hung frontend builds fail fast and do not block pushes. This can be set for a single push in PowerShell with:
+
+```powershell
+$env:FRONTEND_BUILD_TIMEOUT_SECONDS = '300'; git push
+```
+
+Adjust the value if your environment requires a longer build time.
+
 If you'd like me to make the pre-push hook stricter (fail when Docker is missing) or optional via a config flag, say so and I will update it.
