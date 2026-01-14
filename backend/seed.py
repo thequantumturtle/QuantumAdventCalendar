@@ -128,6 +128,48 @@ if __name__ == '__main__':
         'difficulty': 2
     },
     {
+        'day': 4,
+        'title': 'Quantum Gates',
+        'description': '''
+        Implement and observe basic single-qubit gates (X, H, Z) and how they transform
+        computational basis states.
+
+        **Your task:**
+        1. Implement `apply_gate(state, gate)` that applies a 2x2 gate to a 2-element state vector.
+        2. Use the provided gate matrices (Pauli-X, Hadamard, Pauli-Z) and verify their action.
+        3. Run local tests to confirm behaviour.
+        ''',
+        'starter_code': '''import numpy as np
+
+# Example gate definitions
+H = (1/np.sqrt(2)) * np.array([[1.0, 1.0], [1.0, -1.0]])
+X = np.array([[0.0, 1.0], [1.0, 0.0]])
+Z = np.array([[1.0, 0.0], [0.0, -1.0]])
+
+def apply_gate(state, gate):
+    """Apply a 2x2 gate to a 2-element state vector and return the new state."""
+    # TODO: implement using numpy
+    pass
+
+if __name__ == '__main__':
+    print('Implement apply_gate and run the included tests')
+''',
+        'test_code': '''import numpy as np
+from solution import apply_gate, H, X, Z
+
+def test_x_flips_zero_to_one():
+    zero = np.array([1.0, 0.0])
+    one = np.array([0.0, 1.0])
+    assert np.allclose(apply_gate(zero, X), one)
+
+def test_h_on_zero_creates_superposition():
+    zero = np.array([1.0, 0.0])
+    expected = (1/np.sqrt(2)) * np.array([1.0, 1.0])
+    assert np.allclose(apply_gate(zero, H), expected)
+''',
+        'difficulty': 1
+    },
+    {
         'day': 2,
         'title': 'Superposition',
         'description': '''
