@@ -5,6 +5,8 @@ import 'ace-builds/src-noconflict/theme-monokai';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../styles/ChallengeEditor.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -73,8 +75,8 @@ function ChallengeEditor({ user, token }) {
         <div className="difficulty">
           {'★'.repeat(challenge.difficulty)}{'☆'.repeat(5 - challenge.difficulty)}
         </div>
-        <div className="description">
-          {challenge.description}
+        <div className="description markdown-body">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{challenge.description}</ReactMarkdown>
         </div>
       </div>
 
