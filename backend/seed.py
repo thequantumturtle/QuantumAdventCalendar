@@ -11,6 +11,12 @@ It then clears and populates the `challenges` table.
 
 import os
 import re
+import json
+try:
+    import yaml
+except Exception:
+    yaml = None
+
 from app import app, db, Challenge
 
 
@@ -57,6 +63,17 @@ def discover_challenges(days_root=None):
         if not title:
             title = f"Day {day_num}"
 
+        # Read optional metadata from meta.yaml (title, difficulty, tags)
+        meta = {}
+        meta_path = os.path.join(entry_path, 'meta.yaml')
+        if os.path.isfile(meta_path) and yaml is not None:
+            try:
+                with open(meta_path, 'r', encoding='utf-8') as mf:
+                    meta = yaml.safe_load(mf) or {}
+            except Exception:
+                # ignore metadata parsing errors and continue
+                meta = {}
+
         # Starter code
         starter_code = ''
         for fname in ('starter_code.py', 'solution.py'):
@@ -75,11 +92,11 @@ def discover_challenges(days_root=None):
 
         challenge = {
             'day': day_num,
-            'title': title,
+            'title': meta.get('title') or title,
             'description': description,
-            'starter_code': starter_code or '"""Starter code not provided."""',
+            'starter_code': starter_code or meta.get('starter_code') or '"""Starter code not provided."""',
             'test_code': test_code or '',
-            'difficulty': 1,
+            'difficulty': int(meta.get('difficulty', 1)),
         }
 
         challenges.append(challenge)

@@ -1,0 +1,26 @@
+name: Validate Days
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-days:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyYAML
+
+      - name: Run days validator
+        run: |
+          python scripts/validate_days.py
