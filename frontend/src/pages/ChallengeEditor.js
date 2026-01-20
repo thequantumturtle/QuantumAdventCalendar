@@ -75,6 +75,13 @@ function ChallengeEditor({ user, token }) {
         <div className="difficulty">
           {'★'.repeat(challenge.difficulty)}{'☆'.repeat(5 - challenge.difficulty)}
         </div>
+        {challenge.tags && challenge.tags.length > 0 && (
+          <div className="tags">
+            {challenge.tags.map((t) => (
+              <span key={t} className="tag">{t}</span>
+            ))}
+          </div>
+        )}
         <div className="description markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{challenge.description}</ReactMarkdown>
         </div>

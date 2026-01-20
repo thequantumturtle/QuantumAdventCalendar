@@ -71,6 +71,7 @@ class Challenge(db.Model):
     starter_code = db.Column(db.Text, nullable=False)
     test_code = db.Column(db.Text, nullable=False)
     difficulty = db.Column(db.Integer, default=1)  # 1-5 stars
+    tags = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime, default=db.func.now())
     
     submissions = db.relationship('Submission', backref='challenge', lazy=True)
@@ -83,6 +84,7 @@ class Challenge(db.Model):
             'description': self.description,
             'starter_code': self.starter_code,
             'difficulty': self.difficulty,
+            'tags': self.tags or [],
             'created_at': self.created_at.isoformat()
         }
 

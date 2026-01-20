@@ -90,6 +90,35 @@ def discover_challenges(days_root=None):
             with open(test_path, 'r', encoding='utf-8') as f:
                 test_code = f.read()
 
+        # Infer tags heuristically when not provided in meta.yaml
+        def infer_tags(text):
+            text = (text or '').lower()
+            tags = set()
+            keyword_map = {
+                'hadamard': 'hadamard',
+                'superposition': 'superposition',
+                'entanglement': 'entanglement',
+                'bell': 'entanglement',
+                'cnot': 'cnot',
+                'cx(': 'cnot',
+                'pauli': 'pauli',
+                'pauli-x': 'pauli-x',
+                'pauli-z': 'pauli-z',
+                'x gate': 'pauli-x',
+                'z gate': 'pauli-z',
+                'qiskit': 'qiskit',
+                'numpy': 'numpy',
+                'measurement': 'measurement',
+                'circuit': 'circuit',
+                'gate': 'gate',
+            }
+            for k, tag in keyword_map.items():
+                if k in text:
+                    tags.add(tag)
+            return sorted(tags)
+
+        inferred = infer_tags('\n'.join([description, starter_code, test_code]))
+
         challenge = {
             'day': day_num,
             'title': meta.get('title') or title,
@@ -97,6 +126,7 @@ def discover_challenges(days_root=None):
             'starter_code': starter_code or meta.get('starter_code') or '"""Starter code not provided."""',
             'test_code': test_code or '',
             'difficulty': int(meta.get('difficulty', 1)),
+            'tags': meta.get('tags') or inferred,
         }
 
         challenges.append(challenge)

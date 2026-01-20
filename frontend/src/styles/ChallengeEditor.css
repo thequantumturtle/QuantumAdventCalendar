@@ -37,6 +37,24 @@
   white-space: pre-wrap;
 }
 
+/* Tag pill styles */
+.tags {
+  margin: 1rem 0;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: #eef2ff;
+  color: #334155;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(102,126,234,0.15);
+}
+
 .editor-panel {
   grid-column: 2;
 }

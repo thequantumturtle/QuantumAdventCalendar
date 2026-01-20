@@ -40,6 +40,13 @@ function ChallengeList() {
           >
             <div className="day-number">Day {challenge.day}</div>
             <h3>{challenge.title}</h3>
+            {challenge.tags && challenge.tags.length > 0 && (
+              <div className="tags">
+                {challenge.tags.map((t) => (
+                  <span key={t} className="tag">{t}</span>
+                ))}
+              </div>
+            )}
             <div className="difficulty">
               {'★'.repeat(challenge.difficulty)}
               {'☆'.repeat(5 - challenge.difficulty)}
