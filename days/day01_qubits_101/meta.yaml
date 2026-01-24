@@ -1,0 +1,10 @@
+title: "Day 1: Qubits 101"
+difficulty: 1
+tags:
+  - circuit
+  - gate
+  - hadamard
+  - measurement
+  - numpy
+  - qiskit
+  - superposition
